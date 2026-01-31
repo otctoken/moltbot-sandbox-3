@@ -2,6 +2,23 @@ import type { Context, Next } from 'hono';
 import type { AppEnv, MoltbotEnv } from '../types';
 import { verifyAccessJWT } from './jwt';
 
+
+const publicPaths = [
+  '/telegram/webhook',      // ← Telegram webhook
+];
+
+const pathname = new URL(c.req.url).pathname;
+const isPublicPath = publicPaths.some(p => {
+  if (p.endsWith('/')) {
+    return pathname.startsWith(p);
+  }
+  return pathname === p;
+});
+
+if (isPublicPath) {
+  console.log(`[AUTH] Bypassing auth for public path: ${pathname}`);
+  return next(); // ← 直接通过，不需要认证
+}
 /**
  * Options for creating an access middleware
  */
