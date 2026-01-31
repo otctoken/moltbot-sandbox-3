@@ -42,30 +42,9 @@ export function extractJWT(c: Context<AppEnv>): string | null {
  */
 export function createAccessMiddleware(options: AccessMiddlewareOptions) {
   const { type, redirectOnMissing = false } = options;
-    // [CHANGE 1] Add public paths that bypass authentication
-  const publicPaths = [
-    '/sandbox-health',
-    '/api/status',
-    '/logo.png',
-    '/logo-small.png',
-    '/telegram/webhook',
-    '/_admin/assets/',
-  ];
+
 
   return async (c: Context<AppEnv>, next: Next) => {
-        // [CHANGE 2] Check if this path is public before enforcing auth
-    const pathname = new URL(c.req.url).pathname;
-    const isPublicPath = publicPaths.some(p => {
-      if (p.endsWith('/')) {
-        return pathname.startsWith(p);
-      }
-      return pathname === p;
-    });
-
-    if (isPublicPath) {
-      console.log(`[AUTH] Public path allowed: ${pathname}`);
-      return next();
-    }
     // Skip auth in dev mode
     if (isDevMode(c.env)) {
       c.set('accessUser', { email: 'dev@localhost', name: 'Dev User' });
